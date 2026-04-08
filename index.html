@@ -3,27 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teachable Machine App</title>
+    <title>Teachable Machine Game</title>
     <link rel="stylesheet" href="styles.css">
-    
 </head>
-<body>
-    <h1>My Teachable Machine App</h1>
 
-    <button id="toggleButton" onclick="toggleCamera()">Start Camera</button>
+<body>
+    <h1>AI Detection Game</h1>
+
+    <button id="toggleButton" onclick="toggleCamera()">Start Game</button>
+
+    <h2 id="score">Score: 0</h2>
 
     <div id="webcam-container"></div>
     <div id="label-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
     <script>
-        // Switched to our model URL:
         const URL = "https://teachablemachine.withgoogle.com/models/dwBBM6PiQ/";
 
         let model, webcam, labelContainer, maxPredictions;
         let isRunning = false;
 
+        let score = 0;
+
+        // Load and start camera
         async function init() {
             model = await tmImage.load(URL + "model.json", URL + "metadata.json");
             maxPredictions = model.getTotalClasses();
@@ -39,6 +44,7 @@
 
             labelContainer = document.getElementById("label-container");
             labelContainer.innerHTML = "";
+
             for (let i = 0; i < maxPredictions; i++) {
                 labelContainer.appendChild(document.createElement("div"));
             }
@@ -47,54 +53,68 @@
             window.requestAnimationFrame(loop);
         }
 
-        async function loop() {
+        function loop() {
             if (!isRunning) return;
             webcam.update();
-            await predict();
+            predict();
             window.requestAnimationFrame(loop);
         }
 
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
 
-            // Find the top prediction
             let topClass = prediction[0];
+
             for (let i = 1; i < prediction.length; i++) {
                 if (prediction[i].probability > topClass.probability) {
                     topClass = prediction[i];
                 }
             }
 
-            // Update labels
+            // show all predictions
             for (let i = 0; i < maxPredictions; i++) {
-                const classPrediction =
+                labelContainer.childNodes[i].innerHTML =
                     prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-                labelContainer.childNodes[i].innerHTML = classPrediction;
             }
 
-            // Custom conditions
-            if (topClass.className === "HOLDING" && topClass.probability > 0.8) {
-                document.body.style.backgroundColor = "#f87171"; // red
-            } else if (topClass.className === "NO PHONE" && topClass.probability > 0.8) {
-                document.body.style.backgroundColor = "#4ade80"; // green
-            } else if (topClass.className.includes("Chiikawa") && topClass.probability > 0.8) {
-                document.body.style.backgroundColor = "pink"; 
-            } else {
-                document.body.style.backgroundColor = "#ffffff"; // default white
+            // GAME LOGIC
+            const name = topClass.className.toLowerCase();
+            const prob = topClass.probability;
+
+            if (name.includes("no phone") && prob > 0.8) {
+                score += 1;
+                document.body.style.backgroundColor = "#4ade80";
+            } 
+            else if (name.includes("holding") && prob > 0.8) {
+                score -= 1;
+                document.body.style.backgroundColor = "#f87171";
+            } 
+            else if (name.includes("chiikawa") && prob > 0.8) {
+                score += 3;
+                document.body.style.backgroundColor = "pink";
+            } 
+            else {
+                document.body.style.backgroundColor = "#ffffff";
             }
+
+            // update score
+            document.getElementById("score").innerText = "Score: " + score;
         }
 
         async function toggleCamera() {
             const button = document.getElementById("toggleButton");
+
             if (!isRunning) {
                 await init();
-                button.textContent = "Stop Camera";
+                button.textContent = "Stop Game";
                 button.classList.add("stop");
             } else {
                 isRunning = false;
                 webcam.stop();
+
                 document.getElementById("webcam-container").classList.remove("active");
-                button.textContent = "Start Camera";
+
+                button.textContent = "Start Game";
                 button.classList.remove("stop");
             }
         }

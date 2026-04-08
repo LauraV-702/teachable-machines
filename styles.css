@@ -3,7 +3,6 @@ body {
     text-align: center; 
     background: #fff; 
     margin: 0; 
-    overflow: hidden; 
     transition: background-color 0.5s ease; 
 }
 
@@ -19,14 +18,17 @@ body {
     display: none;
     border-radius: 8px;
 }
+
 #webcam-container.active canvas {
     display: block;
     align-items: center;
 }
+
 #label-container div {
     font-size: 1.1rem;
     padding: 0.25rem 0;
 }
+
 button {
     padding: 0.6rem 1.5rem;
     font-size: 1rem;
@@ -37,6 +39,7 @@ button {
     background: #2563eb;
     margin: 1rem 0;
 }
+
 button.stop { background: #dc2626; }
 button:hover { opacity: 0.9; }
 
