@@ -1,0 +1,41 @@
+body { 
+    font-family: sans-serif; 
+    text-align: center; 
+    background: #fff; 
+    margin: 0; 
+    overflow: hidden; 
+    transition: background-color 0.5s ease; 
+}
+
+body {
+    font-family: sans-serif;
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    text-align: center;
+}
+
+#webcam-container canvas {
+    display: none;
+    border-radius: 8px;
+}
+#webcam-container.active canvas {
+    display: block;
+    align-items: center;
+}
+#label-container div {
+    font-size: 1.1rem;
+    padding: 0.25rem 0;
+}
+button {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    color: white;
+    background: #2563eb;
+    margin: 1rem 0;
+}
+button.stop { background: #dc2626; }
+button:hover { opacity: 0.9; }
